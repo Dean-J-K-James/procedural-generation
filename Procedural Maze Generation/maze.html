@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- Page Information -->
+  <title>Maze Generation</title>
+  <meta charset="utf-8" />
+  <!-- Styling -->
+</head>
+
+<body>
+  <canvas id="myCanvas" width="512" height="512"
+    style="position: fixed; left: 16px; top: 16px; background-color: #ffdddd"></canvas>
+  <script>
+    var c = document.getElementById("myCanvas");
+    var ctx = c.getContext("2d");
+
+    let map_size_x = 64;
+    let map_size_y = 64;
+
+    var cells = [];
+    var stack = [];
+
+    //Create 2d array
+    for (let i = 0; i < map_size_x; i++) {
+      cells[i] = [];
+    }
+
+    //Set each cell to a random state (for testing)
+    for (let x = 0; x < map_size_x; x++) {
+      for (let y = 0; y < map_size_y; y++) {
+        //cells[x][y] = Math.floor(Math.random() * 2) == 0 ? "wall" : 'path';
+      }
+    }
+
+    //Set each cell to a wall. Make sure to say delete the previous.
+    for (let x = 0; x < map_size_x; x++) {
+      for (let y = 0; y < map_size_y; y++) {
+        cells[x][y] = 0;
+      }
+    }
+
+    //Do this and the cells[][] = and then run the render.
+    var pos = {
+      x: map_size_x / 2,
+      y: map_size_y / 2,
+    };
+
+    stack.push(pos);
+
+
+
+
+    create_maze();
+    render_maze();
+
+    /**
+     * Creates a maze by performing a randomised depth first search.
+     */
+    function create_maze() {
+
+      while (stack.length > 0) {
+
+        var curpos = stack.pop();
+        var neighbours = get_unvisited_cell_neighbours(curpos);
+
+        if (neighbours.length > 0) {
+          advance_maze(curpos, neighbours);
+        }
+      }
+    }
+
+    /**
+     * Looks at each neighbour of the passed cell. If the neighbour is valid and unvisited,
+     * it is added to an array which is eventually returned.
+     */
+    function get_unvisited_cell_neighbours(curpos) {
+
+      var ns = [];
+
+      var x = curpos.x;
+      var y = curpos.y;
+
+      if (is_cell_valid_and_unvisited({ x: x, y: y + 2 })) { ns.push({ x: x, y: y + 2 }); }
+      if (is_cell_valid_and_unvisited({ x: x, y: y - 2 })) { ns.push({ x: x, y: y - 2 }); }
+      if (is_cell_valid_and_unvisited({ x: x + 2, y: y })) { ns.push({ x: x + 2, y: y }); }
+      if (is_cell_valid_and_unvisited({ x: x - 2, y: y })) { ns.push({ x: x - 2, y: y }); }
+
+      return ns;
+    }
+
+    /**
+     * Evaluates a cell to check if it is within the bounds of the grid, and unvisited.
+     */
+    function is_cell_valid_and_unvisited(cell) {
+      return cell.x >= 0 && cell.y >= 0 && cell.x < map_size_x && cell.y < map_size_y && cells[cell.x][cell.y] == 0;
+    }
+
+    /**
+     * Picks a random neighbour and advances the maze in it's direction.
+     */
+    function advance_maze(curpos, neighbours) {
+      
+      var newpos = neighbours[Math.floor(Math.random() * neighbours.length)];
+      stack.push(curpos);
+      stack.push(newpos);
+
+      connect_paths(curpos, newpos);
+    }
+
+    /**
+     * Sets the cells between the two passed cells to visited.
+     */
+     function connect_paths(curpos, newpos) {
+
+      var minx = Math.min(curpos.x, newpos.x);
+      var miny = Math.min(curpos.y, newpos.y);
+      var maxx = Math.max(curpos.x, newpos.x);
+      var maxy = Math.max(curpos.y, newpos.y);
+
+      for (let x = minx; x <= maxx; x++) {
+        for (let y = miny; y <= maxy; y++) {
+          cells[x][y] = 1;
+        }
+      }
+    }
+
+    /**
+     * Renders the maze by looping through each cell and drawing a square.
+     */
+    function render_maze() {
+
+      for (let x = 0; x < map_size_x; x++)
+        for (let y = 0; y < map_size_y; y++) {
+
+          switch (cells[x][y]) {
+            case 0: { ctx.fillStyle = "rgb(066, 071, 076)"; break; }
+            case 1: { ctx.fillStyle = "rgb(251, 116, 106)"; break; }
+          }
+
+          ctx.fillRect(x * 8, y * 8, 8, 8);
+        }
+    }
+
+  </script>
+</body>
+
+</html>
