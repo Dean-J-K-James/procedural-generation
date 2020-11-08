@@ -24,8 +24,8 @@ render_cave();
 // Creates the cave by running the random walk algorithm.
 function create_cave() {
 
-    var x = map_size_x / 2;
-    var y = map_size_y / 2;
+    let x = map_size_x / 2;
+    let y = map_size_y / 2;
 
     for (let i = 0; i <= 2000; i++) {
 
